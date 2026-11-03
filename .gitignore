@@ -1,0 +1,10 @@
+.env
+.venv/
+logs/
+__pycache__/
+servidor/.node
+dados/*.xlsx
+dados/backups/
+
+# Documento de regras: tem dados confidenciais (servidores, valores e lançamentos). Fica só local.
+Docs/regras-para-o-consolidado.md

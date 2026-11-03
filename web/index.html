@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consolidado do grupo</title>
+  <link rel="icon" href="/assets/img/logo-96.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/consolidado.css">
+  <script>
+    // tema escolhido antes de pintar a página (evita o piscar)
+    try { const t = localStorage.getItem("consolidado.tema"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+    try { if (localStorage.getItem("consolidado.menu") === "recolhido") document.documentElement.classList.add("menu-recolhido"); } catch (e) {}
+  </script>
+</head>
+<body class="entrada">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-visao" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></symbol>
+      <symbol id="i-externo" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+      <symbol id="i-linha" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-5 4 3 5-7"/></symbol>
+      <symbol id="i-loja" viewBox="0 0 24 24"><path d="M4 10v10h16V10"/><path d="M2 10 4.5 4h15L22 10"/><path d="M2 10a3.3 3.3 0 0 0 6.7 0 3.3 3.3 0 0 0 6.6 0 3.3 3.3 0 0 0 6.7 0"/><path d="M10 20v-5h4v5"/></symbol>
+      <symbol id="i-tabela" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 10v10"/></symbol>
+      <symbol id="i-vendas" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></symbol>
+      <symbol id="i-pag" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></symbol>
+      <symbol id="i-resultado" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+      <symbol id="i-pct" viewBox="0 0 24 24"><path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol>
+      <symbol id="i-atualizar" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+      <symbol id="i-excel" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="m9 13 4 5M13 13l-4 5"/></symbol>
+      <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></symbol>
+      <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+      <symbol id="i-lua" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+      <symbol id="i-auto" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+      <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+      <symbol id="i-seta" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+      <symbol id="i-recolher" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+    </defs>
+  </svg>
+
+  <aside class="sidebar">
+    <button class="recolher" id="btn-menu" type="button" aria-label="Recolher o menu" title="Recolher o menu"><svg class="ico"><use href="#i-recolher"/></svg></button>
+    <div class="marca">
+      <img src="/assets/img/logo-96.png" alt="">
+      <div class="rotulo"><strong>Frigorífico Amazonas</strong><span>Consolidado gerencial</span></div>
+    </div>
+    <nav>
+      <div class="nav-titulo">Painel</div>
+      <div class="nav" id="nav">
+        <a href="#operacao" class="ativo" title="Visão geral"><svg class="ico"><use href="#i-visao"/></svg><span class="rotulo">Visão geral</span></a>
+        <a href="#externos" title="Pagamentos externos"><svg class="ico"><use href="#i-externo"/></svg><span class="rotulo">Pagamentos externos</span></a>
+        <a href="#evolucao" title="Evolução"><svg class="ico"><use href="#i-linha"/></svg><span class="rotulo">Evolução</span></a>
+        <a href="#unidades" title="Unidades"><svg class="ico"><use href="#i-loja"/></svg><span class="rotulo">Unidades</span></a>
+        <a href="#tabela" title="Resultado por grupo"><svg class="ico"><use href="#i-tabela"/></svg><span class="rotulo">Resultado por grupo</span></a>
+      </div>
+    </nav>
+    <div class="sidebar-rodape">
+      <div class="status-dados" id="status-dados"><b>Conectando…</b>consultando as unidades</div>
+      <div class="tema" role="group" aria-label="Tema">
+        <button type="button" data-tema="light" aria-pressed="false" title="Claro"><svg class="ico"><use href="#i-sol"/></svg><span>Claro</span></button>
+        <button type="button" data-tema="auto" aria-pressed="true" title="Automático"><svg class="ico"><use href="#i-auto"/></svg><span>Auto</span></button>
+        <button type="button" data-tema="dark" aria-pressed="false" title="Escuro"><svg class="ico"><use href="#i-lua"/></svg><span>Escuro</span></button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topo">
+      <div>
+        <span class="eyebrow">Consolidado · regime de caixa</span>
+        <h1 id="titulo">Grupo Frigorífico Amazonas</h1>
+        <p class="contexto" id="contexto">Carregando as unidades…</p>
+      </div>
+      <div class="acoes">
+        <select class="select" id="ano" aria-label="Ano"></select>
+        <button class="btn" id="btn-atualizar" title="Consultar os bancos de novo"><svg class="ico"><use href="#i-atualizar"/></svg>Atualizar</button>
+        <button class="btn" id="btn-excel" title="Baixar a tabela por grupo em Excel"><svg class="ico"><use href="#i-excel"/></svg>Excel</button>
+        <button class="btn primario" id="btn-pdf" title="Imprimir ou salvar em PDF"><svg class="ico"><use href="#i-pdf"/></svg>PDF</button>
+      </div>
+    </header>
+
+    <div class="periodo">
+      <div class="meses" id="meses" role="group" aria-label="Mês"><span class="indicador"></span></div>
+      <span class="legenda-periodo" id="legenda-periodo"></span>
+    </div>
+
+    <div id="avisos" aria-live="polite"></div>
+
+    <div id="conteudo" class="carregando">
+      <section class="secao" id="operacao">
+        <div class="secao-cab"><span class="indice">01</span><h2 id="nome-grupo-h2">Operação do grupo</h2><p>Vendas e pagamentos das unidades, sem os pagamentos externos</p></div>
+        <div class="kpis" id="kpis-grupo"></div>
+      </section>
+
+      <section class="secao" id="externos">
+        <div class="secao-cab"><span class="indice">02</span><h2>Com pagamentos externos</h2><p>Empréstimos, sócios e investimentos da empresa somados aos pagamentos</p></div>
+        <div class="kpis" id="kpis-externos"></div>
+        <div class="externos-lista" id="externos-lista"></div>
+      </section>
+
+      <section class="secao" id="evolucao">
+        <div class="secao-cab"><span class="indice">03</span><h2>Evolução no ano</h2><p id="evolucao-sub">Mês a mês</p></div>
+        <div class="grade">
+          <div class="card painel anima" style="--i:10">
+            <div class="painel-cab">
+              <div><h3 id="graf-titulo">Lucratividade</h3><p id="graf-sub">Resultado ÷ vendas, mês a mês</p></div>
+              <div class="abas" id="abas" role="group" aria-label="Métrica">
+                <span class="indicador"></span>
+                <button type="button" data-metrica="lucratividade" aria-pressed="true">Lucratividade</button>
+                <button type="button" data-metrica="resultado" aria-pressed="false">Resultado</button>
+                <button type="button" data-metrica="fluxo" aria-pressed="false">Vendas × pagamentos</button>
+              </div>
+            </div>
+            <div class="legenda" id="legenda"></div>
+            <div class="grafico" id="grafico"><div class="tooltip" id="tooltip"></div></div>
+          </div>
+          <div class="card painel anima" style="--i:11">
+            <div class="painel-cab"><div><h3>Pagamentos por grupo</h3><p id="grupos-sub">Valor e % das vendas</p></div></div>
+            <div class="grupos" id="grupos"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="secao" id="unidades">
+        <div class="secao-cab"><span class="indice">04</span><h2>Desempenho por unidade</h2><p>Operação de cada loja, sem os pagamentos externos</p></div>
+        <div class="unidades" id="lista-unidades"></div>
+      </section>
+
+      <section class="secao" id="tabela">
+        <div class="secao-cab"><span class="indice">05</span><h2>Resultado por grupo</h2><p>Pagamentos da operação: valor e % das vendas por unidade. Clique num grupo para ver as contas</p></div>
+        <div class="card tabela-card anima" style="--i:20">
+          <div class="tabela-rolagem"><table id="tabela-grupos"></table></div>
+          <div class="tabela-rodape">
+            <span>Regime de caixa: pagamentos pela data de pagamento. Transferências entre unidades ficam fora (nem venda, nem pagamento).</span>
+            <button class="btn" id="btn-expandir" type="button">Abrir todas as contas</button>
+          </div>
+        </div>
+
+        <div class="card painel externos-grupo anima" style="--i:21">
+          <div class="painel-cab">
+            <div><h3>Pagamentos externos do grupo</h3><p>Despesas da empresa (empréstimos, sócios, investimentos), consideradas para o grupo todo e não para uma unidade</p></div>
+          </div>
+          <div class="externos-grupo-corpo">
+            <div class="grupos" id="externos-grupo-barras"></div>
+            <div class="ponte" id="externos-grupo-ponte"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="/assets/js/app.js"></script>
+</body>
+</html>
