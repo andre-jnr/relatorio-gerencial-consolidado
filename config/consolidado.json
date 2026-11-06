@@ -25,7 +25,7 @@
 
   "_externos_agrupados": "Contas externas mostradas num card só.",
   "externos_agrupados": {
-    "JC GARCIA + DISTRIBUIÇÃO DE SÓCIOS": ["DESPESA JC GARCIA", "DISTRIBUIÇÃO DE SÓCIOS", "HAVERES/ FRIGORIFICO PARA JC PART"]
+    "JC GARCIA + Sócios": ["DESPESA JC GARCIA", "DISTRIBUIÇÃO DE SÓCIOS", "HAVERES/ FRIGORIFICO PARA JC PART"]
   },
 
   "_externos_fornecedores": "Tudo o que foi pago a estes fornecedores (código do cadastro Pessoa no banco de pagamentos da unidade) é pagamento externo, em qualquer conta, e vai para o card da conta indicada. O código do fornecedor muda de um banco para outro.",
@@ -41,7 +41,8 @@
 
   "despesas_socios": {
     "_leia": "Igual ao painel por loja: despesas dos sócios e da família ficam fora da loja e aqui entram como PAGAMENTO EXTERNO, neste card. Entram os fornecedores da unidade (despesas_socios.fornecedores na unidade, pois os códigos de Pessoa mudam por banco), as contas abaixo e as observações que casam com as expressões (texto em maiúsculas e sem acentos). 'exceto' tira autorizações, retiradas e compras feitas por eles para a loja. Precedência: fornecedor de externos_fornecedores (JC) e conta externa vêm antes; o resto vai para este card.",
-    "card": "DESPESAS DOS SÓCIOS E FAMÍLIA",
+    "_card": "Mesmo card da JC Garcia (externos_agrupados): JC, distribuição de sócios e despesas dos sócios e da família ficam juntos.",
+    "card": "JC GARCIA + Sócios",
     "contas": [
       "INSS - SOCIOS"
     ],

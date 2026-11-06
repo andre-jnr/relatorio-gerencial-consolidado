@@ -11,7 +11,7 @@
   Externos            = contas_externas (+ externos_lancamentos, ex.: PN 90097 e PD 146333 em INVESTIMENTO/ COMPRA DE IMÓVEL)
                         + tudo pago aos externos_fornecedores (ex.: JC PARTICIPAÇÕES, no card da JC Garcia)
                         + despesas_socios (fornecedores, contas e observações dos sócios e da família, como no
-                          painel por loja), no card DESPESAS DOS SÓCIOS E FAMÍLIA
+                          painel por loja), no card de despesas_socios.card (hoje o mesmo da JC: JC GARCIA + Sócios)
   Precedência: fornecedor externo > conta externa > despesa dos sócios > grupo da planilha de classificação.
 
 Aqui só se junta tudo por unidade e mês; os totais, resultados e lucratividades (do grupo e com

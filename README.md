@@ -54,8 +54,8 @@ Para remover: `servidor\desinstalar.bat` (não apaga dados).
 | CD | energia a 60%; lançamento 1987 (FALCAO) fora e não mostrado |
 | FALCAO INDUSTRIA NF | fora e não mostrada |
 | Ponta Negra 90097 e Parque Dez 146333 | saem da operação e entram como externo em INVESTIMENTO/ COMPRA DE IMÓVEL |
-| Despesas dos sócios e da família | Parque Dez: fornecedores SUL AMERICA (plano de saúde) e JC, conta INSS - SOCIOS e observações que citam Dona Silvia, Sr. Jarbas ou Sr. Eduardo (menos autorizações, retiradas e compras para a loja). Entram como externo no card DESPESAS DOS SÓCIOS E FAMÍLIA; o que já é conta externa ou JC fica no card de origem |
-| Externos | as contas de `contas_externas`; JC GARCIA + DISTRIBUIÇÃO DE SÓCIOS (com HAVERES/ FRIGORIFICO PARA JC PART) num card só |
+| Despesas dos sócios e da família | Parque Dez: fornecedores SUL AMERICA (plano de saúde) e JC, conta INSS - SOCIOS e observações que citam Dona Silvia, Sr. Jarbas ou Sr. Eduardo (menos autorizações, retiradas e compras para a loja). Entram como externo no card JC GARCIA + Sócios |
+| Externos | as contas de `contas_externas`. O card **JC GARCIA + Sócios** junta DESPESA JC GARCIA, DISTRIBUIÇÃO DE SÓCIOS, HAVERES/ FRIGORIFICO PARA JC PART, tudo pago à JC PARTICIPAÇÕES e as despesas dos sócios e da família |
 | Fornecedores externos | tudo pago a um fornecedor de `externos_fornecedores` é externo, em qualquer conta. Hoje: JC PARTICIPAÇÕES LTDA (código 3252 no banco da Parque Dez), no card da JC Garcia |
 | Grupos | coluna PARA RELATÓRIO GERAL da `classificação_pagamentos.xlsx`; conta fora dela: NÃO CLASSIFICADOS |
 | Transferências | notas emitidas, CD → lojas, CD → Flores e saídas TRANSF LOJA FLORES: fora de tudo |
