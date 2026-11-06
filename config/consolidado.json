@@ -35,8 +35,54 @@
 
   "_externos_lancamentos": "Lançamentos tirados da unidade (lancamentos_ignorados) que voltam como externos, na conta indicada, pela data de pagamento (seção 3.4).",
   "externos_lancamentos": [
-    { "unidade": "ponta_negra", "codigo": 90097, "conta": "INVESTIMENTO/ COMPRA DE IMÓVEL" }
+    { "unidade": "ponta_negra", "codigo": 90097, "conta": "INVESTIMENTO/ COMPRA DE IMÓVEL" },
+    { "unidade": "parque_dez", "codigo": 146333, "conta": "INVESTIMENTO/ COMPRA DE IMÓVEL", "_leia": "R$ 190,16 em 29/10/2026, REGISTRO DE IMÓVEIS (certidão): soma com a compra de imóvel" }
   ],
+
+  "despesas_socios": {
+    "_leia": "Igual ao painel por loja: despesas dos sócios e da família ficam fora da loja e aqui entram como PAGAMENTO EXTERNO, neste card. Entram os fornecedores da unidade (despesas_socios.fornecedores na unidade, pois os códigos de Pessoa mudam por banco), as contas abaixo e as observações que casam com as expressões (texto em maiúsculas e sem acentos). 'exceto' tira autorizações, retiradas e compras feitas por eles para a loja. Precedência: fornecedor de externos_fornecedores (JC) e conta externa vêm antes; o resto vai para este card.",
+    "card": "DESPESAS DOS SÓCIOS E FAMÍLIA",
+    "contas": [
+      "INSS - SOCIOS"
+    ],
+    "observacao": [
+      {
+        "nome": "Dona Silvia",
+        "procurar": "SILV",
+        "regex": "\\bDONA\\s+SILVI?A\\b|\\bD\\.?\\s*SILVIA\\b"
+      },
+      {
+        "nome": "Sr. Jarbas",
+        "procurar": "JARBAS",
+        "regex": "\\b(SR|SEU|SENHOR)\\.?\\s*JARBAS\\b",
+        "exceto": [
+          "\\bAUT(\\.|\\b|ORIZ)",
+          "RETIRAD",
+          "\\bPELO\\s+(SR|SEU|SENHOR)",
+          "CARTAO",
+          "JARBAS\\.?\\s+PARA\\b"
+        ]
+      },
+      {
+        "nome": "Sr. Eduardo",
+        "procurar": "EDUARDO",
+        "regex": "\\b(SR|SEU|SENHOR)\\.?\\s*EDUARDO\\b",
+        "exceto": [
+          "\\bAUT(\\.|\\b|ORIZ)",
+          "RETIRAD",
+          "\\bPELO\\s+(SR|SEU|SENHOR)",
+          "CARTAO",
+          "EDUARDO\\.?\\s+PARA\\b"
+        ]
+      }
+    ]
+  },
+
+  "observacao_outra_loja": {
+    "_leia": "Igual ao painel por loja: pagamentos da Flores lançados pela Parque Dez em outra conta contábil, mas com 'FLORES -' na observação (ex.: FLORES - SORVETES KIBON). Saem da Parque Dez ('excluir') e entram na Flores ('incluir'), na conta em que foram lançados. As contas externas, LOJA FLORES e ignoradas já têm regra própria e não entram aqui.",
+    "procurar": "FLORES",
+    "regex": "\\bFLORES\\s*-"
+  },
 
   "_contas_flores": "Despesas da Flores pagas pelo banco da Parque Dez: lidas uma vez no banco da Parque Dez e somadas só na Flores, como pagamento normal (seção 3.2).",
   "contas_flores": [
@@ -84,7 +130,9 @@
     {
       "slug": "parque_dez", "nome": "Parque Dez",
       "servidor": "serverprq10", "banco": "sismoura",
-      "sem_contas": "contas_flores"
+      "sem_contas": "contas_flores",
+      "observacao_outra_loja": "excluir",
+      "despesas_socios": { "fornecedores": [3252, 3244], "nomes_fornecedores": { "3252": "JC PARTICIPAÇÕES LTDA", "3244": "SUL AMERICA (plano de saúde)" } }
     },
     {
       "slug": "flores", "nome": "Flores",
@@ -92,6 +140,7 @@
       "_pagamentos": "As contas a pagar do banco da Flores são ignoradas (seção 3.8): os pagamentos vêm das contas LOJA FLORES da Parque Dez, mais os recibos.",
       "pagamentos_de": { "servidor": "serverprq10", "banco": "sismoura" },
       "somente_contas": "contas_flores",
+      "observacao_outra_loja": "incluir",
       "recibos": true,
       "nota": "Pagamentos: contas LOJA FLORES pagas pela Parque Dez e recibos do caixa."
     },
