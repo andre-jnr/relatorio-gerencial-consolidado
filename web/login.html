@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Entrar · Consolidado do grupo</title>
+  <link rel="icon" href="/assets/img/logo-96.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/css/consolidado.css">
+  <link rel="stylesheet" href="/assets/css/acesso.css">
+  <script>
+    try { const t = localStorage.getItem("consolidado.tema"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body class="login-body">
+  <main class="login">
+    <section class="login-arte" aria-hidden="true">
+      <div class="login-marca">
+        <img src="/assets/img/logo-256.png" alt="" width="56" height="56">
+        <div><strong>Frigorífico Amazonas</strong><span>Consolidado gerencial</span></div>
+      </div>
+
+      <div class="login-grafico">
+        <svg viewBox="0 0 420 200" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="la" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#3987e5" stop-opacity=".35"/>
+              <stop offset="100%" stop-color="#3987e5" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <g class="login-grade"><line x1="0" x2="420" y1="40" y2="40"/><line x1="0" x2="420" y1="90" y2="90"/><line x1="0" x2="420" y1="140" y2="140"/></g>
+          <path class="login-area" d="M0,150 C35,140 50,95 84,98 C118,101 132,128 168,118 C204,108 218,60 252,62 C286,64 300,96 336,84 C372,72 390,38 420,30 L420,200 L0,200 Z" fill="url(#la)"/>
+          <path class="login-linha" d="M0,150 C35,140 50,95 84,98 C118,101 132,128 168,118 C204,108 218,60 252,62 C286,64 300,96 336,84 C372,72 390,38 420,30"/>
+          <path class="login-linha b" d="M0,170 C35,165 50,128 84,132 C118,136 132,158 168,150 C204,142 218,104 252,108 C286,112 300,134 336,126 C372,118 390,90 420,84"/>        </svg>
+      </div>
+
+      <div class="login-texto">
+        <span class="eyebrow">Seis unidades · uma empresa só</span>
+        <p>Vendas, pagamentos e resultado do grupo, direto dos bancos das lojas, numa tela só.</p>
+      </div>
+    </section>
+
+    <section class="login-form-caixa">
+      <form class="login-form" id="form-login" novalidate>
+        <span class="eyebrow">Acesso restrito</span>
+        <h1>Entrar</h1>
+        <p class="login-sub">Use o login e a senha cadastrados pelo administrador do consolidado.</p>
+
+        <label class="campo">
+          <span>Usuário</span>
+          <input type="text" id="login" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
+        </label>
+        <label class="campo">
+          <span>Senha</span>
+          <span class="campo-senha">
+            <input type="password" id="senha" name="password" autocomplete="current-password" required>
+            <button type="button" class="ver-senha" id="ver-senha" aria-label="Mostrar a senha" aria-pressed="false">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </span>
+        </label>
+
+        <p class="form-erro" id="erro" role="alert" hidden></p>
+        <button type="submit" class="btn primario btn-largo" id="entrar"><span>Entrar</span></button>
+        <p class="login-rodape">Problemas para entrar? Fale com o administrador do painel.</p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+  (() => {
+    const form = document.getElementById("form-login");
+    const erro = document.getElementById("erro");
+    const btn = document.getElementById("entrar");
+    const senha = document.getElementById("senha");
+
+    document.getElementById("ver-senha").onclick = (e) => {
+      const ver = senha.type === "password";
+      senha.type = ver ? "text" : "password";
+      e.currentTarget.setAttribute("aria-pressed", String(ver));
+      e.currentTarget.setAttribute("aria-label", ver ? "Esconder a senha" : "Mostrar a senha");
+    };
+
+    // só volta para endereços deste painel
+    function destino() {
+      const v = new URLSearchParams(location.search).get("volta") || "/";
+      return v.startsWith("/") && !v.startsWith("//") ? v : "/";
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      erro.hidden = true;
+      const login = document.getElementById("login").value.trim();
+      if (!login || !senha.value) { mostrar("Informe o usuário e a senha."); return; }
+      btn.disabled = true;
+      btn.querySelector("span").textContent = "Entrando…";
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ login, senha: senha.value }),
+        });
+        const corpo = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(corpo.erro || `Erro ${res.status}`);
+        document.body.classList.add("saindo");
+        setTimeout(() => location.replace(destino()), 220);
+      } catch (err) {
+        mostrar(err instanceof TypeError ? "Servidor do consolidado indisponível. Tente de novo." : err.message);
+        senha.select();
+        btn.disabled = false;
+        btn.querySelector("span").textContent = "Entrar";
+      }
+    };
+
+    function mostrar(msg) {
+      erro.textContent = msg;
+      erro.hidden = false;
+      form.classList.remove("tremer"); void form.offsetWidth; form.classList.add("tremer");
+    }
+  })();
+  </script>
+</body>
+</html>

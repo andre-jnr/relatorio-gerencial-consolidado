@@ -7,6 +7,7 @@
 //   Lucratividade c/ ext.   = Resultado com externos ÷ Σ vendas
 import { MESES, MESES_LONGOS, compacto, contar, esc, eixoMoeda, eixoPct, hora, moeda, moedaHero, numero, pct } from "./format.js";
 import { GraficoLinhas, sparkline } from "./graficos.js";
+import "./comum.js";  // sessão, tema, menu lateral e menu do usuário
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -662,28 +663,6 @@ $("#abas").addEventListener("click", (ev) => {
   posicionarIndicador($("#abas"));
   renderGrafico(serieMensal());
 });
-
-// tema: claro, automático (sistema) ou escuro
-function aplicarTema(t) {
-  if (t === "auto") delete document.documentElement.dataset.theme;
-  else document.documentElement.dataset.theme = t;
-  try { t === "auto" ? localStorage.removeItem("consolidado.tema") : localStorage.setItem("consolidado.tema", t); } catch { /* sem armazenamento */ }
-  $$(".tema button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.tema === t));
-}
-$$(".tema button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
-aplicarTema(document.documentElement.dataset.theme || "auto");
-
-// menu lateral recolhível (lembrado neste navegador)
-function aplicarMenu(recolhido) {
-  document.documentElement.classList.toggle("menu-recolhido", recolhido);
-  const b = $("#btn-menu");
-  const texto = recolhido ? "Expandir o menu" : "Recolher o menu";
-  b.setAttribute("aria-label", texto); b.title = texto;
-  b.setAttribute("aria-expanded", !recolhido);
-  try { recolhido ? localStorage.setItem("consolidado.menu", "recolhido") : localStorage.removeItem("consolidado.menu"); } catch { /* sem armazenamento */ }
-}
-$("#btn-menu").addEventListener("click", () => aplicarMenu(!document.documentElement.classList.contains("menu-recolhido")));
-aplicarMenu(document.documentElement.classList.contains("menu-recolhido"));
 
 // item do menu acompanha a seção visível
 const espiao = new IntersectionObserver((entradas) => {

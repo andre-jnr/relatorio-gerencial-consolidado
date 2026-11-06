@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="/assets/css/consolidado.css">
+  <link rel="stylesheet" href="/assets/css/acesso.css">
   <script>
     // tema escolhido antes de pintar a página (evita o piscar)
     try { const t = localStorage.getItem("consolidado.tema"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
@@ -36,6 +37,9 @@
       <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
       <symbol id="i-seta" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
       <symbol id="i-recolher" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+      <symbol id="i-usuarios" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.6.8 2.6 2.6 3 5.2"/></symbol>
+      <symbol id="i-chave" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.8-9.8M17 6l3 3M14.5 8.5l2 2"/></symbol>
+      <symbol id="i-sair" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></symbol>
     </defs>
   </svg>
 
@@ -54,9 +58,16 @@
         <a href="#unidades" title="Unidades"><svg class="ico"><use href="#i-loja"/></svg><span class="rotulo">Unidades</span></a>
         <a href="#tabela" title="Resultado por grupo"><svg class="ico"><use href="#i-tabela"/></svg><span class="rotulo">Resultado por grupo</span></a>
       </div>
+      <div data-super hidden>
+        <div class="nav-titulo nav-titulo-2">Administração</div>
+        <div class="nav">
+          <a href="/usuarios" title="Usuários"><svg class="ico"><use href="#i-usuarios"/></svg><span class="rotulo">Usuários</span></a>
+        </div>
+      </div>
     </nav>
     <div class="sidebar-rodape">
       <div class="status-dados" id="status-dados"><b>Conectando…</b>consultando as unidades</div>
+      <div class="usuario-menu" id="usuario-menu"></div>
       <div class="tema" role="group" aria-label="Tema">
         <button type="button" data-tema="light" aria-pressed="false" title="Claro"><svg class="ico"><use href="#i-sol"/></svg><span>Claro</span></button>
         <button type="button" data-tema="auto" aria-pressed="true" title="Automático"><svg class="ico"><use href="#i-auto"/></svg><span>Auto</span></button>

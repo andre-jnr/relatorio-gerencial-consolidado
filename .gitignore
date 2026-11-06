@@ -5,6 +5,8 @@ __pycache__/
 servidor/.node
 dados/*.xlsx
 dados/backups/
+dados/usuarios.db
+dados/.chave_sessao
 
 # Documento de regras: tem dados confidenciais (servidores, valores e lançamentos). Fica só local.
 Docs/regras-para-o-consolidado.md
