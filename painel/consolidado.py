@@ -149,18 +149,26 @@ def _filtrar_socios(u, linhas):
 
 
 def _sql_obs_loja(u):
-    """Candidatos a pagamento da outra loja pela observação ("FLORES - ..."), fora das contas com regra própria."""
+    """Candidatos a pagamento da outra loja pela observação ("FLORES - ...", "OSSAMI") ou pelo código,
+    fora das contas com regra própria."""
     regra = CFG.get("observacao_outra_loja") or {}
     if not (regra.get("regex") and u.get("observacao_outra_loja") in ("excluir", "incluir")):
         return None
     com_regra = CFG.get("contas_externas", []) + CFG.get("contas_flores", []) + CFG.get("contas_ignoradas", [])
-    cond = f"{CONTA} NOT IN ({_lista_sql(com_regra)}) AND {OBS} LIKE {_sql_texto('%' + regra.get('procurar', '') + '%')}"
+    procurar = regra.get("procurar") or []
+    procurar = [procurar] if isinstance(procurar, str) else procurar
+    busca = [f"{OBS} LIKE {_sql_texto('%' + p + '%')}" for p in procurar if p]
+    if regra.get("lancamentos"):
+        busca.append(f"cp.Codigo IN ({_codigos(regra['lancamentos'])})")
+    cond = f"{CONTA} NOT IN ({_lista_sql(com_regra)}) AND ({' OR '.join(busca) or '1 = 0'})"
     return SQL_CANDIDATOS.replace("__CANDIDATOS__", cond)
 
 
 def _filtrar_obs_loja(linhas):
-    expr = re.compile(CFG["observacao_outra_loja"]["regex"])
-    return {int(l["Codigo"]) for l in linhas if expr.search(normaliza(l["Observacao"]))}
+    regra = CFG["observacao_outra_loja"]
+    expr = re.compile(regra["regex"])
+    fixos = {int(c) for c in regra.get("lancamentos", [])}
+    return {int(l["Codigo"]) for l in linhas if int(l["Codigo"]) in fixos or expr.search(normaliza(l["Observacao"]))}
 
 
 def _sql_pagamentos(u, socios=None, obs_loja=None):

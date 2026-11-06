@@ -80,9 +80,11 @@
   },
 
   "observacao_outra_loja": {
-    "_leia": "Igual ao painel por loja: pagamentos da Flores lançados pela Parque Dez em outra conta contábil, mas com 'FLORES -' na observação (ex.: FLORES - SORVETES KIBON). Saem da Parque Dez ('excluir') e entram na Flores ('incluir'), na conta em que foram lançados. As contas externas, LOJA FLORES e ignoradas já têm regra própria e não entram aqui.",
-    "procurar": "FLORES",
-    "regex": "\\bFLORES\\s*-"
+    "_leia": "Igual ao painel por loja: pagamentos da Flores lançados pela Parque Dez em outra conta contábil, mas com 'FLORES -' na observação (ex.: FLORES - SORVETES KIBON). Saem da Parque Dez ('excluir') e entram na Flores ('incluir'), na conta em que foram lançados. As contas externas, LOJA FLORES e ignoradas já têm regra própria e não entram aqui. Também pega OSSAMI, o nome antigo da Flores (ex.: aquisição do Varejão Ossami, certidão da Ossami). 'lancamentos': códigos de Contas_Pagar da Parque Dez que são da Flores mesmo sem a palavra na observação.",
+    "procurar": ["FLORES", "OSSAMI"],
+    "regex": "\\bFLORES\\s*-|\\bOSSAMI",
+    "lancamentos": [145552, 146016],
+    "_lancamentos": "145552: R$ 5.325,00 em 09/10/2026, honorários da aquisição do Varejão Ossami. 146016: R$ 114,87 em 21/10/2026, certidão simplificada da Ossami na JUCEA."
   },
 
   "_contas_flores": "Despesas da Flores pagas pelo banco da Parque Dez: lidas uma vez no banco da Parque Dez e somadas só na Flores, como pagamento normal (seção 3.2).",
