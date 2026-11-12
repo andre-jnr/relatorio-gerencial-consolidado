@@ -287,8 +287,14 @@ def api_resumo():
     atualizar = request.args.get("atualizar") == "1"
     futuros = [_unidades_pool.submit(_resumo_unidade, u, atualizar) for u in unidades]
     hoje = date.today()
-    return _json({"hoje": hoje.isoformat(), "atualizado_em": consolidado.agora_iso(),
-                  "unidades": [f.result() for f in futuros]})
+    links = CFG.get("links_relatorio") or {}
+    # link do relatório gerencial de cada unidade (painel por loja), só http/https
+    resposta = [{**f.result(), "link": {k: v for k, v in (links.get(u["slug"]) or {}).items() if k in ("url", "dica")}}
+                for u, f in zip(unidades, futuros)]
+    for r in resposta:
+        if not str(r["link"].get("url", "")).startswith(("http://", "https://")):
+            r["link"] = {}
+    return _json({"hoje": hoje.isoformat(), "atualizado_em": consolidado.agora_iso(), "unidades": resposta})
 
 
 @app.get("/api/consolidado")

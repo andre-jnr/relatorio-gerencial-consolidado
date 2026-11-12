@@ -193,6 +193,18 @@
 .tabela-resumo td.sem-dado, .tabela-resumo tr.falhou td { text-align: left; color: var(--muted); }
 .tabela-resumo tr.falhou td { color: var(--critical); }
 .tabela-resumo tbody tr:last-child th, .tabela-resumo tbody tr:last-child td { border-bottom: 0; }
+.tabela-resumo thead tr th.col-link, .tabela-resumo td.col-link { text-align: right; width: 1%; white-space: nowrap; padding-left: 8px; }
+.btn-relatorio {
+  display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;
+  border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface);
+  color: var(--text-2); font-size: 12.5px; font-weight: 550; text-decoration: none;
+  transition: color .2s var(--ease-out), border-color .2s var(--ease-out), background-color .2s var(--ease-out), transform .16s var(--ease-out);
+}
+.btn-relatorio svg { width: 14px; height: 14px; transition: transform .25s var(--ease-out); }
+.btn-relatorio:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.btn-relatorio:hover svg { transform: translate(1px, -1px); }
+.btn-relatorio:active { transform: scale(.97); }
+.btn-relatorio:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* linhas entram em sequência, com movimento curto (a cada troca de período) */
 .tabela-resumo tbody tr { animation: linha-entra .42s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
 @keyframes linha-entra { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }

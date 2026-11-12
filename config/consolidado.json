@@ -6,6 +6,16 @@
   "_resumo_unidades": "Página inicial (Resumo das unidades): cada unidade como no painel por loja, com as regras de lá. Slugs do config/unidades.json do painel por loja, na ordem da tabela.",
   "resumo_unidades": ["parque_dez", "flores", "ponta_negra", "morada_do_sol", "monte_das_oliveiras", "cd"],
 
+  "_links_relatorio": "Botão de cada unidade no Resumo: abre o relatório gerencial dela (painel por loja, porta 3007). A Flores fica no painel da Parque Dez (escolha a Flores no seletor de lá); o CD fica no subcaminho /cd/ da Parque Dez. 'dica' aparece ao parar o mouse no botão.",
+  "links_relatorio": {
+    "parque_dez": { "url": "http://serverprq10:3007/" },
+    "flores": { "url": "http://serverprq10:3007/", "dica": "Abre o painel da Parque Dez: escolha Flores no seletor de lojas" },
+    "ponta_negra": { "url": "http://server_pn:3007/" },
+    "morada_do_sol": { "url": "http://serverad:3007/" },
+    "monte_das_oliveiras": { "url": "http://186.233.224.137:3007/" },
+    "cd": { "url": "http://serverprq10:3007/cd/" }
+  },
+
   "planilhas": {
     "classificacao": "classificação_pagamentos.xlsx",
     "coluna_grupo": "PARA RELATÓRIO GERAL",

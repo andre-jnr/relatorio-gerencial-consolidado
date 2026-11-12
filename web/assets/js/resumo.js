@@ -41,15 +41,24 @@ function nomePeriodo() {
   return anoCorrente() ? `${estado.ano} até ${hoje().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}` : `Ano de ${estado.ano}`;
 }
 
+/** Botão que abre o relatório gerencial da unidade (painel por loja) numa aba nova. */
+function botaoRelatorio(u) {
+  const link = u.link || {};
+  if (!link.url) return `<td class="col-link"></td>`;
+  const dica = link.dica || `Abrir o relatório gerencial de ${u.nome}`;
+  return `<td class="col-link"><a class="btn-relatorio" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer" title="${esc(dica)}">
+    Abrir<svg class="ico"><use href="#i-abrir"/></svg></a></td>`;
+}
+
 function renderTabela() {
   const avisos = [];
   $("#linhas").innerHTML = estado.dados.unidades.map((u, i) => {
     if (!u.ok) {
       avisos.push(`<b>${esc(u.nome)}</b> não respondeu (${esc(u.erro || "erro")}). Tente de novo em alguns minutos.`);
-      return `<tr class="falhou" style="--i:${i}"><th scope="row">${esc(u.nome)}</th><td colspan="5">não respondeu</td></tr>`;
+      return `<tr class="falhou" style="--i:${i}"><th scope="row">${esc(u.nome)}</th><td colspan="5">não respondeu</td>${botaoRelatorio(u)}</tr>`;
     }
     const s = periodo(u);
-    if (!s) return `<tr style="--i:${i}"><th scope="row">${esc(u.nome)}</th><td colspan="5" class="sem-dado">sem movimento no período</td></tr>`;
+    if (!s) return `<tr style="--i:${i}"><th scope="row">${esc(u.nome)}</th><td colspan="5" class="sem-dado">sem movimento no período</td>${botaoRelatorio(u)}</tr>`;
     if (s.sem_planilha.length) {
       const meses = s.sem_planilha.map((m) => `${MESES[m - 1].toLowerCase()}/${String(estado.ano).slice(2)}`).join(", ");
       avisos.push(`A planilha de vendas do <b>${esc(u.nome)}</b> não tem lançamentos em <b>${meses}</b>: o faturamento desse período aparece zerado.`);
@@ -62,6 +71,7 @@ function renderTabela() {
       <td class="num forte">${moeda(s.faturamento)}</td>
       <td class="num forte"><span${neg(s.resultado)}>${moeda(s.resultado)}</span></td>
       <td class="num forte"><span${neg(s.lucratividade)}>${pct(s.lucratividade, 2)}</span></td>
+      ${botaoRelatorio(u)}
     </tr>`;
   }).join("");
   $("#avisos").innerHTML = avisos.map((a) => `<div class="aviso"><svg class="ico"><use href="#i-alerta"/></svg><div>${a}</div></div>`).join("");
@@ -122,7 +132,7 @@ async function carregar() {
     estado.dados = corpo;
   } catch (e) {
     $("#contexto").textContent = "Não foi possível carregar o resumo.";
-    $("#linhas").innerHTML = `<tr><td colspan="6" class="vazio-estado">${esc(e.message)}</td></tr>`;
+    $("#linhas").innerHTML = `<tr><td colspan="7" class="vazio-estado">${esc(e.message)}</td></tr>`;
     return;
   }
   // período: o do endereço, ou o último mês fechado (em janeiro, dezembro do ano anterior)
