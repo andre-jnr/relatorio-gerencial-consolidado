@@ -253,7 +253,7 @@ h1 { margin: 8px 0 6px; font-size: clamp(30px, 3.2vw, 44px); line-height: 1.05; 
   transition: color .25s var(--ease-out);
 }
 .meses button:hover:not([disabled]) { color: var(--text); }
-.meses button[aria-pressed="true"] { color: var(--bg); }
+.meses button[aria-pressed="true"], .meses button[aria-pressed="true"]:hover { color: var(--bg); }
 .meses button[disabled] { color: var(--muted); opacity: .45; cursor: default; }
 .meses button.andamento::after { content: ""; position: absolute; top: 6px; right: 6px; width: 5px; height: 5px; border-radius: 50%; border: 1.5px solid currentColor; }
 .meses .sep { width: 1px; margin: 6px 4px; background: var(--border-strong); }
