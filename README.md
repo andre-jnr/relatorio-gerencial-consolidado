@@ -49,14 +49,13 @@ Para remover: `servidor\desinstalar.bat` (não apaga dados).
 |---|---|
 | Vendas | `SUM(Venda.Valor_Final)`, `Cancelada = 'N'`. CD: planilha, só `TIPO = VENDA` |
 | Pagamentos | `SUM(Valor_Pago × fator)` por `Data_Pagamento`, sem `Conta_Corrente = 2` (transferências internas) |
-| Parque Dez | sem as 4 contas LOJA FLORES e sem os pagamentos com "FLORES -" na observação (vão para a Flores, na conta em que foram lançados) |
+| Parque Dez | sem as 4 contas LOJA FLORES e sem os pagamentos com "FLORES -" ou OSSAMI/OSAMI (nome antigo da Flores) na observação, mais os lançamentos 145552 e 146016: vão para a Flores, na conta em que foram lançados |
 | Flores | vendas do banco da Flores. Pagamentos: só as 4 contas LOJA FLORES do banco da Parque Dez + recibos da planilha (menos Caixa / Ajustes). As contas a pagar do banco da Flores nunca entram |
 | CD | energia a 60%; lançamento 1987 (FALCAO) fora e não mostrado |
 | FALCAO INDUSTRIA NF | fora e não mostrada |
-| Ponta Negra 90097 e Parque Dez 146333 | saem da operação e entram como externo em INVESTIMENTO/ COMPRA DE IMÓVEL |
-| Despesas dos sócios e da família | Parque Dez: fornecedores SUL AMERICA (plano de saúde) e JC, conta INSS - SOCIOS e observações que citam Dona Silvia, Sr. Jarbas ou Sr. Eduardo (menos autorizações, retiradas e compras para a loja). Entram como externo no card JC GARCIA + Sócios |
-| Externos | as contas de `contas_externas`. O card **JC GARCIA + Sócios** junta DESPESA JC GARCIA, DISTRIBUIÇÃO DE SÓCIOS, HAVERES/ FRIGORIFICO PARA JC PART, tudo pago à JC PARTICIPAÇÕES e as despesas dos sócios e da família |
-| Fornecedores externos | tudo pago a um fornecedor de `externos_fornecedores` é externo, em qualquer conta. Hoje: JC PARTICIPAÇÕES LTDA (código 3252 no banco da Parque Dez), no card da JC Garcia |
+| Compra de imóvel | lançamentos Ponta Negra 90097, 91105, 91106 e 91113 e Parque Dez 146333, mais as contas PAGAMENTO DE HAVERES e ITBI: saem da operação e entram como externo no card INVESTIMENTO/ COMPRA DE IMÓVEL. Vêm antes das despesas dos sócios (91105 e 91106 foram pagos à JC, mas são terreno) |
+| Despesas dos sócios e da família | Parque Dez: fornecedores SUL AMERICA (plano de saúde) e JC PARTICIPAÇÕES, conta INSS - SOCIOS e observações que citam Dona Silvia, Sr. Jarbas ou Sr. Eduardo (menos autorizações, retiradas e compras para a loja). Ponta Negra (JC = 3448) e CD (JC = 3252): só o fornecedor JC e a conta. Entram como externo no card JC GARCIA + Sócios; o que já é conta externa fica no card dela |
+| Externos | as contas de `contas_externas`. O card **JC GARCIA + Sócios** junta DESPESA JC GARCIA, DISTRIBUIÇÃO DE SÓCIOS, HAVERES/ FRIGORIFICO PARA JC PART e as despesas dos sócios e da família (inclusive tudo pago à JC) |
 | Grupos | coluna PARA RELATÓRIO GERAL da `classificação_pagamentos.xlsx`; conta fora dela: NÃO CLASSIFICADOS |
 | Transferências | notas emitidas, CD → lojas, CD → Flores e saídas TRANSF LOJA FLORES: fora de tudo |
 
@@ -64,7 +63,7 @@ Tudo isso está em `config/consolidado.json`. Para mudar uma regra (nova conta e
 
 As regras que tiram pagamentos de uma loja são **as mesmas do painel por loja** (`config/unidades.json` de lá). Quando uma regra nova for criada lá, ela precisa ser trazida para cá, senão o valor fica na loja errada ou entra como despesa normal.
 
-**Conferido em 06/11/2026, janeiro a outubro de 2026, mês a mês:** a operação de cada unidade bate, ao centavo, com os pagamentos do painel por loja menos as transferências internas; e tudo o que foi pago pelo banco da Parque Dez aparece uma vez só (na Parque Dez, na Flores ou nos externos).
+**Conferido em 12/11/2026, janeiro a novembro de 2026 (novembro até o dia), mês a mês, contra o painel por loja atualizado:** a operação de cada unidade bate, ao centavo, com os pagamentos do painel por loja menos as transferências internas; e tudo o que foi pago pelo banco da Parque Dez aparece uma vez só (na Parque Dez, na Flores ou nos externos).
 
 ## Planilhas
 

@@ -6,13 +6,14 @@
                         sem contas_ignoradas (FALCAO INDUSTRIA NF) e sem lancamentos_ignorados (CD 1987, PN 90097)
                         Parque Dez: sem as contas LOJA FLORES. Flores: só as contas LOJA FLORES (banco da
                         Parque Dez) + recibos da planilha. Contas a pagar do banco da Flores: nunca.
-                        Parque Dez: sem os pagamentos com "FLORES -" na observação, que vão para a Flores
-                        (observacao_outra_loja, como no painel por loja)
-  Externos            = contas_externas (+ externos_lancamentos, ex.: PN 90097 e PD 146333 em INVESTIMENTO/ COMPRA DE IMÓVEL)
-                        + tudo pago aos externos_fornecedores (ex.: JC PARTICIPAÇÕES, no card da JC Garcia)
-                        + despesas_socios (fornecedores, contas e observações dos sócios e da família, como no
-                          painel por loja), no card de despesas_socios.card (hoje o mesmo da JC: JC GARCIA + Sócios)
-  Precedência: fornecedor externo > conta externa > despesa dos sócios > grupo da planilha de classificação.
+                        Parque Dez: sem os pagamentos com "FLORES -" ou OSSAMI na observação, que vão para a
+                        Flores (observacao_outra_loja, como no painel por loja)
+  Externos            = contas_externas (haveres e ITBI juntos com a compra de imóvel)
+                        + externos_lancamentos (ex.: PN 90097, 91105, 91106, 91113 e PD 146333 em compra de imóvel)
+                        + despesas_socios (fornecedores como a JC PARTICIPAÇÕES, contas e observações dos sócios e
+                          da família, como no painel por loja), no card de despesas_socios.card (JC GARCIA + Sócios)
+                        (+ externos_fornecedores, se houver: fornecedor que vira externo em qualquer conta)
+  Precedência: lançamento externo > fornecedor externo > conta externa > despesa dos sócios > grupo da planilha.
 
 Aqui só se junta tudo por unidade e mês; os totais, resultados e lucratividades (do grupo e com
 os externos) são somados no navegador, para trocar de mês sem nova consulta.
@@ -120,8 +121,15 @@ def _sql_socios(u):
     fornecedores = [int(f) for f in unidade.get("fornecedores", [])]
     partes = [f"cp.Codigo_Fornecedor IN ({_codigos(fornecedores)})" if fornecedores else "",
               f"{CONTA} IN ({_lista_sql(regra.get('contas', []))})" if regra.get("contas") else ""]
-    partes += [f"{OBS} LIKE {_sql_texto('%' + p['procurar'] + '%')}" for p in regra.get("observacao", [])]
+    partes += [f"{OBS} LIKE {_sql_texto('%' + p['procurar'] + '%')}" for p in _padroes_obs(u)]
     return SQL_CANDIDATOS.replace("__CANDIDATOS__", " OR ".join(p for p in partes if p) or "1 = 0")
+
+
+def _padroes_obs(u):
+    """Expressões das observações dos sócios; "observacoes": false na unidade liga só fornecedores e contas."""
+    if not (u.get("despesas_socios") or {}).get("observacoes", True):
+        return []
+    return (CFG.get("despesas_socios") or {}).get("observacao", [])
 
 
 def _filtrar_socios(u, linhas):
@@ -131,7 +139,7 @@ def _filtrar_socios(u, linhas):
     nomes = unidade.get("nomes_fornecedores", {})
     contas = {chave_conta(c) for c in regra.get("contas", [])}
     padroes = [(p["nome"], re.compile(p["regex"]), [re.compile(x) for x in p.get("exceto", [])])
-               for p in regra.get("observacao", [])]
+               for p in _padroes_obs(u)]
     achados = {}
     for l in linhas:
         forn = int(l["Forn"]) if l["Forn"] is not None else None
