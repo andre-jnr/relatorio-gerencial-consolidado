@@ -29,6 +29,12 @@ Para remover: `servidor\desinstalar.bat` (não apaga dados).
 
 ## O que o painel mostra
 
+**Página inicial: Resumo das unidades (`/`).** Uma linha por unidade, como no painel por loja: vendas, transferência, faturamento total, resultado (R$) e lucratividade (%), por mês ou no ano.
+Os números vêm do **próprio código do painel por loja** (pasta `PAINEL_LOJAS_DIR` no `.env`; padrão: a pasta irmã `Relatório gerencial HTML`), com as regras, as planilhas e o `.env` de lá, inclusive as regras da Flores. Por isso o painel por loja precisa estar na mesma máquina.
+As linhas não são somadas: no resumo as transferências contam como faturamento de quem manda e pagamento de quem recebe. O número do grupo é o do Consolidado.
+
+**Consolidado (`/consolidado`):**
+
 | Bloco | Conteúdo |
 |---|---|
 | 01 Operação do grupo | vendas, pagamentos, resultado e lucratividade **sem** os externos |

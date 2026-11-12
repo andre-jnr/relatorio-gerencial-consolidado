@@ -3,6 +3,9 @@
 
   "nome_grupo": "Grupo Frigorífico Amazonas",
 
+  "_resumo_unidades": "Página inicial (Resumo das unidades): cada unidade como no painel por loja, com as regras de lá. Slugs do config/unidades.json do painel por loja, na ordem da tabela.",
+  "resumo_unidades": ["parque_dez", "flores", "ponta_negra", "morada_do_sol", "monte_das_oliveiras", "cd"],
+
   "planilhas": {
     "classificacao": "classificação_pagamentos.xlsx",
     "coluna_grupo": "PARA RELATÓRIO GERAL",

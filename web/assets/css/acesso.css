@@ -177,3 +177,22 @@
   .login-area { opacity: 1; }
 }
 @media print { .usuario-menu { display: none !important; } }
+
+/* ------------------------------------------------------------
+   Resumo das unidades (página inicial)
+   ------------------------------------------------------------ */
+.tabela-resumo th, .tabela-resumo td { padding: 17px 20px; font-size: 14px; text-align: right; }
+.tabela-resumo thead tr th {
+  padding: 18px 20px 12px; border-bottom: 1px solid var(--border);
+  color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .02em; text-align: right;
+}
+.tabela-resumo thead tr th:first-child, .tabela-resumo tbody th { text-align: left; }
+.tabela-resumo tbody th { font-weight: 600; background: var(--surface); }
+.tabela-resumo tbody tr:hover th { background: var(--surface-2); }
+.tabela-resumo td.forte { font-weight: 600; }
+.tabela-resumo td.sem-dado, .tabela-resumo tr.falhou td { text-align: left; color: var(--muted); }
+.tabela-resumo tr.falhou td { color: var(--critical); }
+.tabela-resumo tbody tr:last-child th, .tabela-resumo tbody tr:last-child td { border-bottom: 0; }
+/* linhas entram em sequência, com movimento curto (a cada troca de período) */
+.tabela-resumo tbody tr { animation: linha-entra .42s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes linha-entra { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }

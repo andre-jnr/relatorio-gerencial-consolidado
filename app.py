@@ -25,7 +25,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from painel import consolidado, planilhas, usuarios
+from painel import consolidado, lojas, planilhas, usuarios
 from painel.banco import ErroBanco
 from painel.config import CACHE_MINUTOS, CFG, PORTA, RAIZ, UNIDADES
 from painel.planilhas import ErroPlanilha
@@ -251,6 +251,46 @@ def ping():
     return _json({"consolidado": True})
 
 
+def _resumo_unidade(u, atualizar):
+    """Uma unidade do resumo, calculada pelo painel por loja (cache próprio, como o do consolidado)."""
+    chave = ("resumo", u["slug"])
+    with _trava(chave):
+        item = _cache.get(chave)
+        if (not atualizar and item and time.time() - item["quando"] < CACHE_MINUTOS * 60
+                and item["dia"] == date.today()):
+            return item["dados"]
+        inicio = time.time()
+        try:
+            dados = lojas.dados(u)
+        except Exception:  # noqa: BLE001
+            log.exception("Erro inesperado no resumo de %s", u["nome"])
+            return {"slug": u["slug"], "nome": u["nome"], "ok": False, "erro": "erro inesperado (veja o log)", "meses": []}
+        if dados["ok"]:
+            log.info("Resumo de %s: %.1fs", u["nome"], time.time() - inicio)
+            _cache[chave] = {"dados": dados, "quando": time.time(), "dia": date.today()}
+        else:
+            log.warning("Resumo de %s: %s", u["nome"], dados["erro"])
+        return dados
+
+
+@app.get("/api/resumo")
+def api_resumo():
+    """Página inicial: cada unidade como no painel por loja, mês a mês (o navegador soma o período)."""
+    try:
+        if lojas.atualizar_planilhas():
+            for k in [k for k in _cache if k[0] == "resumo"]:
+                _cache.pop(k, None)  # planilha do painel por loja alterada
+        unidades = lojas.unidades()
+    except Exception as e:  # noqa: BLE001  (pasta do painel por loja ausente, planilha com erro...)
+        log.exception("Resumo: falha ao carregar o painel por loja")
+        return _erro(f"Não foi possível carregar o painel por loja: {e}.", 502)
+    atualizar = request.args.get("atualizar") == "1"
+    futuros = [_unidades_pool.submit(_resumo_unidade, u, atualizar) for u in unidades]
+    hoje = date.today()
+    return _json({"hoje": hoje.isoformat(), "atualizado_em": consolidado.agora_iso(),
+                  "unidades": [f.result() for f in futuros]})
+
+
 @app.get("/api/consolidado")
 def api_consolidado():
     hoje = date.today()
@@ -338,6 +378,12 @@ def exportar():
 # ------------------------------------------------------------------
 @app.get("/")
 def inicio():
+    """Página inicial: resumo das unidades."""
+    return send_from_directory(WEB, "resumo.html")
+
+
+@app.get("/consolidado")
+def pagina_consolidado():
     return send_from_directory(WEB, "index.html")
 
 
