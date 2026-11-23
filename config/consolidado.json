@@ -110,11 +110,12 @@
     "LOJA FLORES FORNECEDOR",
     "LOJA FLORES - REFORMA/OBRA",
     "LOJA FLORES - CONTA DE ENERGIA",
-    "LOJA FLORES - SALÁRIOS"
+    "LOJA FLORES - SALÁRIOS",
+    "LOJA FLORES - 13º SALÁRIO"
   ],
 
-  "_contas_ignoradas": "Fora de tudo e não mostradas (seção 3.3).",
-  "contas_ignoradas": ["FALCAO INDUSTRIA NF"],
+  "_contas_ignoradas": "Fora de tudo e não mostradas, como no painel por loja: FALCAO INDUSTRIA NF e RECEITAS NÃO OPERACIONAIS (lançamento contábil sem valor físico para a gestão, ex.: aplicação de CDB de R$ 750.000,00 na Parque Dez em 13/11/2026).",
+  "contas_ignoradas": ["FALCAO INDUSTRIA NF", "RECEITAS NÃO OPERACIONAIS"],
 
   "recibos": {
     "_leia": "Recibos pagos em dinheiro no caixa da Flores. Cada recibo vai para a conta da primeira regra que casar (categoria, subcategoria e, se houver, alguma palavra na descrição ou no fornecedor; 'sem' exclui). Sem regra: conta_padrao. Caixa / Ajustes não é despesa.",
