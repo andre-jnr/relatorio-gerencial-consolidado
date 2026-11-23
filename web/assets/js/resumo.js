@@ -135,17 +135,15 @@ async function carregar() {
     $("#linhas").innerHTML = `<tr><td colspan="7" class="vazio-estado">${esc(e.message)}</td></tr>`;
     return;
   }
-  // período: o do endereço, ou o último mês fechado (em janeiro, dezembro do ano anterior)
+  // período: o do endereço, ou o mês atual
   const p = new URLSearchParams(location.search);
   const h = hoje();
   const anoUrl = +p.get("ano"), mesUrl = p.has("mes") ? +p.get("mes") : null;
   if (anos().includes(anoUrl)) {
     estado.ano = anoUrl;
     estado.mes = mesUrl != null && mesUrl >= 0 && mesUrl <= ultimoMes(anoUrl) ? mesUrl : ultimoMes(anoUrl);
-  } else if (h.getMonth() === 0) {
-    estado.ano = h.getFullYear() - 1; estado.mes = 12;
   } else {
-    estado.ano = h.getFullYear(); estado.mes = h.getMonth();
+    estado.ano = h.getFullYear(); estado.mes = h.getMonth() + 1;
   }
   render();
 }

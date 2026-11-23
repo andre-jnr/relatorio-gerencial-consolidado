@@ -63,6 +63,30 @@ FROM Contas_Pagar cp
 WHERE cp.Codigo IN (__CODIGOS__) AND cp.Data_Pagamento >= @ini AND cp.Data_Pagamento < @fim
   AND ISNULL(cp.Conta_Corrente, 0) <> 2;"""
 
+# Lista lançamento por lançamento (página Pagamentos externos): mesmos filtros de SQL_PAGAMENTOS,
+# só com as linhas que podem ser externas (o destino final é decidido por _destino, como nos totais)
+CAMPOS_LISTA = """cp.Codigo, cp.Codigo_Fornecedor AS Forn, ISNULL(pe.Nome, '') AS Fornecedor, ISNULL(cc.Descricao, '') AS Conta,
+       cp.Data_Emissao, cp.Data_Pagamento, cp.Data_Vencimento, CAST(cp.Observacao AS NVARCHAR(MAX)) AS Observacao"""
+SQL_LISTA = PERIODO + f"""
+SELECT {CAMPOS_LISTA}, ISNULL(cp.Valor_Pago, 0) * __FATOR__ AS Valor, __MARCA__ AS Marca
+FROM Contas_Pagar cp
+LEFT JOIN Conta_Contabil cc ON cc.Codigo = cp.Conta_Contabil
+LEFT JOIN Pessoa pe ON pe.Codigo = cp.Codigo_Fornecedor
+WHERE cp.Data_Pagamento >= @ini AND cp.Data_Pagamento < @fim
+  AND ISNULL(cp.Conta_Corrente, 0) <> 2
+  AND {CONTA} NOT IN (__IGNORADAS__)
+  AND cp.Codigo NOT IN (__LANCAMENTOS__)
+  __CONTAS__
+  AND (__SO_EXTERNOS__);"""
+
+SQL_LISTA_LANCAMENTOS = PERIODO + f"""
+SELECT {CAMPOS_LISTA}, ISNULL(cp.Valor_Pago, 0) AS Valor
+FROM Contas_Pagar cp
+LEFT JOIN Conta_Contabil cc ON cc.Codigo = cp.Conta_Contabil
+LEFT JOIN Pessoa pe ON pe.Codigo = cp.Codigo_Fornecedor
+WHERE cp.Codigo IN (__CODIGOS__) AND cp.Data_Pagamento >= @ini AND cp.Data_Pagamento < @fim
+  AND ISNULL(cp.Conta_Corrente, 0) <> 2;"""
+
 
 def agora_iso():
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
@@ -179,7 +203,10 @@ def _filtrar_obs_loja(linhas):
     return {int(l["Codigo"]) for l in linhas if int(l["Codigo"]) in fixos or expr.search(normaliza(l["Observacao"]))}
 
 
-def _sql_pagamentos(u, socios=None, obs_loja=None):
+def _sql_pagamentos(u, socios=None, obs_loja=None, modelo=None):
+    """SQL dos pagamentos da unidade. modelo: SQL_PAGAMENTOS (totais por mês e conta) ou SQL_LISTA
+    (lançamento por lançamento, só os que podem ser externos). Os filtros são os mesmos nos dois."""
+    modelo = modelo or SQL_PAGAMENTOS
     socios, obs_loja = socios or {}, obs_loja or set()
     filtro = ""
     if u.get("somente_contas"):
@@ -204,7 +231,14 @@ def _sql_pagamentos(u, socios=None, obs_loja=None):
     # sem marca na unidade: coluna fixa, fora do GROUP BY (o SQL Server não agrupa por constante)
     marca = f"(CASE {' '.join(casos)} ELSE N'' END)" if casos else "N''"
     marca_grupo = f", {marca}" if casos else ""
-    return (SQL_PAGAMENTOS.replace("__MARCA_GRUPO__", marca_grupo).replace("__MARCA__", marca)
+    # lista: só o que pode ser externo (conta externa, despesa dos sócios ou fornecedor externo)
+    so_externos = [f"{CONTA} IN ({_lista_sql(CFG.get('contas_externas', []))})"]
+    if socios:
+        so_externos.append(f"cp.Codigo IN ({_codigos(sorted(socios))})")
+    if forn:
+        so_externos.append(f"cp.Codigo_Fornecedor IN ({_codigos(forn)})")
+    return (modelo.replace("__MARCA_GRUPO__", marca_grupo).replace("__MARCA__", marca)
+            .replace("__SO_EXTERNOS__", " OR ".join(so_externos))
             .replace("__FATOR__", _fator_sql(u))
             .replace("__IGNORADAS__", _lista_sql(CFG.get("contas_ignoradas", [])))
             .replace("__LANCAMENTOS__", _codigos(lancamentos))
@@ -233,12 +267,9 @@ class _Classificador:
         return "grupo", NAO_CLASSIFICADOS, conta or "(sem conta contábil)"
 
 
-def dados_unidade(u, ano):
-    """Vendas, pagamentos por grupo e conta, e externos por card, mês a mês do ano."""
-    ini, fim, ultimo_mes = periodo(ano)
-    timeout = int(u.get("timeout", 20))
-
-    # 1ª etapa: quais lançamentos são despesa dos sócios e quais são da outra loja pela observação
+def _previas(u, ini, fim, timeout):
+    """1ª etapa: quais lançamentos são despesa dos sócios ({código: motivo}) e quais são da outra loja
+    pela observação ({códigos})."""
     previas = {}
     if _sql_socios(u):
         previas["socios"] = (_fonte_pagamentos(u), _sql_socios(u), (ini, fim), timeout)
@@ -247,6 +278,39 @@ def dados_unidade(u, ano):
     p = consultar_varios(previas) if previas else {}
     socios = _filtrar_socios(u, p["socios"]) if "socios" in p else {}
     obs_loja = _filtrar_obs_loja(p["obs_loja"]) if "obs_loja" in p else set()
+    return socios, obs_loja
+
+
+def _card_socios():
+    return (CFG.get("despesas_socios") or {}).get("card") or "DESPESAS DOS SÓCIOS E FAMÍLIA"
+
+
+def _destino(conta_banco, marca, classifica, fornecedores, motivos):
+    """Para onde vai um pagamento do banco: (tipo, card ou grupo, conta mostrada, motivo).
+    Precedência: fornecedor externo > conta externa > despesa dos sócios > grupo da planilha.
+    Usado nos totais (dados_unidade) e na lista lançamento por lançamento, para os dois baterem."""
+    nome_conta = " ".join((conta_banco or "(sem conta contábil)").split())
+    if marca.startswith("F"):
+        f = fornecedores[int(marca[1:])]
+        _, nome, _ = classifica(f["conta"])
+        quem = f.get("nome") or f"fornecedor {f['codigo']}"
+        return "externo", nome, f"{nome_conta} ({quem})", f"fornecedor externo {quem}"
+    tipo, nome, conta = classifica(conta_banco)
+    if tipo == "externo":
+        return tipo, nome, conta, "conta externa"
+    if marca.startswith("S"):
+        motivo = motivos[int(marca[1:])]
+        return "externo", _card_socios(), f"{nome_conta} ({motivo})", f"despesa dos sócios: {motivo}"
+    return tipo, nome, conta, ""
+
+
+def dados_unidade(u, ano):
+    """Vendas, pagamentos por grupo e conta, e externos por card, mês a mês do ano."""
+    ini, fim, ultimo_mes = periodo(ano)
+    timeout = int(u.get("timeout", 20))
+
+    # 1ª etapa: quais lançamentos são despesa dos sócios e quais são da outra loja pela observação
+    socios, obs_loja = _previas(u, ini, fim, timeout)
 
     # 2ª etapa: pagamentos (já com as marcas), vendas e lançamentos que voltam como externos
     tarefas = {"pagamentos": (_fonte_pagamentos(u), _sql_pagamentos(u, socios, obs_loja), (ini, fim), timeout)}
@@ -285,20 +349,9 @@ def dados_unidade(u, ano):
     # despesa dos sócios e da família (card próprio) > grupo da planilha de classificação
     fornecedores = _externos_fornecedores(u)
     motivos = _motivos(socios)
-    card_socios = (CFG.get("despesas_socios") or {}).get("card") or "DESPESAS DOS SÓCIOS E FAMÍLIA"
     for l in r["pagamentos"]:
-        marca, valor = l["Marca"] or "", num(l["Valor"])
-        nome_conta = " ".join((l["Conta"] or "(sem conta contábil)").split())
-        if marca.startswith("F"):
-            f = fornecedores[int(marca[1:])]
-            _, nome, _ = classifica(f["conta"])
-            soma(int(l["Mes"]), "externo", nome, f"{nome_conta} ({f.get('nome') or 'fornecedor ' + str(f['codigo'])})", valor)
-            continue
-        tipo, nome, conta = classifica(l["Conta"])
-        if tipo == "grupo" and marca.startswith("S"):
-            soma(int(l["Mes"]), "externo", card_socios, f"{nome_conta} ({motivos[int(marca[1:])]})", valor)
-            continue
-        soma(int(l["Mes"]), tipo, nome, conta, valor)
+        tipo, nome, conta, _ = _destino(l["Conta"], l["Marca"] or "", classifica, fornecedores, motivos)
+        soma(int(l["Mes"]), tipo, nome, conta, num(l["Valor"]))
 
     # lançamentos tirados da unidade que voltam como externos, na conta configurada
     conta_de = {int(x["codigo"]): x["conta"] for x in externos}
@@ -327,6 +380,55 @@ def dados_unidade(u, ano):
         })
     return {"slug": u["slug"], "nome": u["nome"], "nota": u.get("nota", ""), "ok": True,
             "atualizado_em": agora_iso(), "meses": lista}
+
+
+def _data(v):
+    return v.date() if isinstance(v, datetime) else v
+
+
+def _origem(emissao, pagamento):
+    """Mesma origem da página Pagamentos do painel por loja (pela emissão em relação ao pagamento)."""
+    if not (emissao and pagamento):
+        return "Outros"
+    e, p = emissao.year * 12 + emissao.month, pagamento.year * 12 + pagamento.month
+    return "Mesmo mês" if e == p else ("Meses anteriores" if e < p else "Outros")
+
+
+def lancamentos_externos(u, ini, fim):
+    """Pagamentos externos da unidade no período [ini, fim), lançamento por lançamento, com as colunas da
+    página Pagamentos do painel por loja, mais o card e o motivo. Mesmas regras dos totais (_destino)."""
+    timeout = int(u.get("timeout", 20))
+    socios, obs_loja = _previas(u, ini, fim, timeout)
+    tarefas = {"lista": (_fonte_pagamentos(u), _sql_pagamentos(u, socios, obs_loja, SQL_LISTA), (ini, fim), timeout)}
+    externos = _externos_lancamentos(u)
+    if externos:
+        sql = SQL_LISTA_LANCAMENTOS.replace("__CODIGOS__", _codigos(x["codigo"] for x in externos))
+        tarefas["lancamentos"] = (_fonte_pagamentos(u), sql, (ini, fim), timeout)
+    r = consultar_varios(tarefas)
+    classifica, fornecedores, motivos = _Classificador(), _externos_fornecedores(u), _motivos(socios)
+
+    def linha(l, card, conta, motivo):
+        emissao, pagamento = _data(l["Data_Emissao"]), _data(l["Data_Pagamento"])
+        iso = lambda d: d.isoformat() if d else None
+        return {"unidade": u["nome"], "slug": u["slug"], "codigo": int(l["Codigo"]),
+                "fornecedor": " ".join((l["Fornecedor"] or "").split()), "conta": conta,
+                "emissao": iso(emissao), "pagamento": iso(pagamento), "vencimento": iso(_data(l["Data_Vencimento"])),
+                "valor_pago": round(num(l["Valor"]), 2), "observacao": " ".join((l["Observacao"] or "").split()),
+                "origem": _origem(emissao, pagamento), "card": card, "motivo": motivo}
+
+    linhas = []
+    for l in r["lista"]:
+        tipo, card, _, motivo = _destino(l["Conta"], l["Marca"] or "", classifica, fornecedores, motivos)
+        if tipo == "externo" and num(l["Valor"]):
+            linhas.append(linha(l, card, " ".join((l["Conta"] or "(sem conta contábil)").split()), motivo))
+    conta_de = {int(x["codigo"]): x["conta"] for x in externos}
+    for l in r.get("lancamentos", []):
+        _, card, conta = classifica(conta_de[int(l["Codigo"])])
+        if num(l["Valor"]):
+            original = " ".join((l["Conta"] or "").split())
+            linhas.append(linha(l, card, conta, "lançamento específico"
+                                                + (f" · no banco: {original}" if original and original != conta else "")))
+    return linhas
 
 
 def cards_externos():

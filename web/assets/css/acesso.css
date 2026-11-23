@@ -208,3 +208,64 @@
 /* linhas entram em sequência, com movimento curto (a cada troca de período) */
 .tabela-resumo tbody tr { animation: linha-entra .42s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
 @keyframes linha-entra { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ------------------------------------------------------------
+   Pagamentos externos (lançamento por lançamento)
+   ------------------------------------------------------------ */
+.cards-filtro { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.cartao-filtro {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px 15px;
+  border-radius: 16px; text-align: left; cursor: pointer; font: inherit; color: inherit; box-shadow: var(--shadow-sm);
+}
+.cartao-filtro .nome { font-size: 12px; color: var(--text-2); line-height: 1.35; }
+.cartao-filtro .valor { font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
+.cartao-filtro .qtde { font-size: 11.5px; color: var(--muted); }
+.cartao-filtro[aria-pressed="true"] { border-color: var(--accent); background: linear-gradient(160deg, var(--accent-soft), transparent 70%), var(--surface); }
+.cartao-filtro[aria-pressed="true"] .nome { color: var(--accent); font-weight: 600; }
+.cartao-filtro:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.lista-cab { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 14px 18px 12px; border-bottom: 1px solid var(--border); }
+.busca { position: relative; display: flex; align-items: center; flex: 1; max-width: 420px; }
+.busca svg { position: absolute; left: 12px; width: 16px; height: 16px; color: var(--muted); pointer-events: none; }
+.busca input {
+  width: 100%; height: 38px; padding: 0 12px 0 36px; border: 1px solid var(--border-strong); border-radius: 11px;
+  background: var(--surface); color: var(--text); font: inherit; font-size: 13px;
+  transition: border-color .2s var(--ease-out), box-shadow .2s var(--ease-out);
+}
+.busca input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.lista-conta { color: var(--text-2); font-size: 13px; font-weight: 550; font-variant-numeric: tabular-nums; }
+
+.tabela-lista th, .tabela-lista td { text-align: left; padding: 10px 9px; font-size: 12.5px; vertical-align: top; }
+.tabela-lista th:first-child, .tabela-lista td:first-child { min-width: 0; padding-left: 18px; }
+.tabela-lista .dir { text-align: right; }
+.tabela-lista thead tr th { padding: 12px 12px 10px; border-bottom: 1px solid var(--border); text-align: left; color: var(--muted); font-size: 12px; }
+.tabela-lista thead tr th.dir { text-align: right; }
+.tabela-lista thead tr th:first-child { text-align: right; padding-left: 18px; }
+.ordenar { display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; font-weight: 600; color: inherit; white-space: nowrap; }
+.ordenar svg { width: 12px; height: 12px; opacity: .35; transition: opacity .2s, transform .2s var(--ease-out); }
+.ordenar:hover { color: var(--text); }
+.ordenar:hover svg, .ordenar.ativa svg { opacity: 1; }
+.ordenar.ativa { color: var(--text); }
+th[aria-sort="ascending"] .ordenar svg { transform: scaleY(-1); }
+.ordenar:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.tabela-lista td.forte { font-weight: 600; }
+.tabela-lista td { white-space: nowrap; }
+.tabela-lista td.quebra { white-space: normal; min-width: 120px; max-width: 180px; }
+.tabela-lista .col-obs { white-space: normal; min-width: 170px; max-width: 240px; color: var(--text-2); }
+.tabela-lista td.col-card { white-space: normal; min-width: 150px; max-width: 180px; padding-right: 18px; }
+.tabela-lista thead tr th { padding: 12px 9px 10px; }
+.tabela-lista td.col-card .selo { height: auto; padding: 3px 9px; white-space: normal; line-height: 1.3; }
+.tabela-lista td.col-card small { display: block; margin-top: 4px; color: var(--muted); font-size: 11.5px; line-height: 1.35; }
+.tabela-lista tbody tr { animation: linha-entra .35s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 18ms); }
+.tabela-lista tfoot th, .tabela-lista tfoot td { background: var(--surface-2); font-weight: 650; border-bottom: 0; }
+.tabela-lista tfoot th { text-align: right; }
+
+/* cards de externos do Consolidado viram atalho para a lista */
+a.ext { display: block; color: inherit; text-decoration: none; }
+a.ext:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a.ext .ver { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 11.5px; color: var(--accent); opacity: 0; transform: translateY(2px); transition: opacity .2s var(--ease-out), transform .2s var(--ease-out); }
+a.ext:hover .ver, a.ext:focus-visible .ver { opacity: 1; transform: none; }
+@media (hover: none) { a.ext .ver { opacity: 1; transform: none; } }
+a.grupo-link { color: inherit; text-decoration: none; cursor: pointer; }
+a.grupo-link:hover .nome { color: var(--accent); }
+a.grupo-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

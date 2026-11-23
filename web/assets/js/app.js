@@ -189,17 +189,21 @@ function atualizarKpis(lista, ind, comp, mensal, animar) {
 // ------------------------------------------------------------------
 // Pagamentos externos por conta
 // ------------------------------------------------------------------
+/** Endereço da página Pagamentos externos, no período escolhido, já filtrada pelo card. */
+const linkExternos = (card) => `/externos?ano=${estado.ano}&mes=${estado.mes}&card=${encodeURIComponent(card)}`;
+
 function renderExternos(ag) {
   const caixa = $("#externos-lista");
   const cards = estado.dados.cards_externos;
   if (caixa.children.length !== cards.length) {
     caixa.innerHTML = cards.map((c, i) => `
-      <div class="card ext hover anima" style="--i:${8 + i}" data-ext="${esc(c)}">
+      <a class="card ext hover anima" style="--i:${8 + i}" data-ext="${esc(c)}" href="#" title="Ver os lançamentos de ${esc(c)}">
         <div class="nome">${esc(c)}</div>
         <div class="valor num">&nbsp;</div>
         <div class="barra"><i style="transform:scaleX(0)"></i></div>
         <div class="unid"></div>
-      </div>`).join("");
+        <span class="ver">Ver lançamentos →</span>
+      </a>`).join("");
   }
   const maior = Math.max(1, ...cards.map((c) => ag.total.externos[c]?.total || 0));
   const unidadesOk = estado.dados.unidades.filter((u) => u.ok);
@@ -212,6 +216,7 @@ function renderExternos(ag) {
     $(".barra i", card).style.transform = `scaleX(${v / maior})`;
     const quem = unidadesOk.filter((u) => ag.por[u.slug]?.externos[c]?.total).map((u) => u.nome);
     $(".unid", card).textContent = quem.join(", ");
+    card.href = linkExternos(c);
   }
   caixa.hidden = !cards.some((c) => ag.total.externos[c]?.total);
 }
@@ -411,11 +416,11 @@ function renderExternosGrupo(ag) {
   const maior = Math.max(1, ...contas.map((c) => c.v));
   $("#externos-grupo-barras").innerHTML = contas.length
     ? contas.map((c) => `
-      <div class="grupo" title="${esc(c.rotulo)}: ${moeda(c.v)} · ${p(c.v)} das vendas do grupo">
+      <a class="grupo grupo-link" href="${esc(linkExternos(c.rotulo))}" title="${esc(c.rotulo)}: ${moeda(c.v)} · ${p(c.v)} das vendas do grupo. Clique para ver os lançamentos">
         <span class="nome">${esc(c.rotulo)}</span>
         <span class="val num">${compacto(c.v)}<small>${p(c.v)}</small></span>
         <span class="trilho"><i style="transform:scaleX(0)" data-x="${c.v / maior}"></i></span>
-      </div>`).join("")
+      </a>`).join("")
     : `<div class="vazio-estado">Nenhum pagamento externo em ${esc(nomePeriodo().toLowerCase())}.</div>`;
   requestAnimationFrame(() => $$("#externos-grupo-barras .trilho i").forEach((i) => { i.style.transform = `scaleX(${i.dataset.x})`; }));
   const neg = (v) => (v < 0 ? ' class="neg"' : "");
@@ -636,7 +641,7 @@ async function carregarAno(ano, { atualizar = false, mes = null } = {}) {
     estado.dados = dados;
     const ultimo = dados.ultimo_mes;
     if (mes != null) estado.mes = Math.min(mes, ultimo);
-    else if (estado.mes == null) estado.mes = anoCorrente() ? ultimo - 1 : 12;  // abre no último mês fechado
+    else if (estado.mes == null) estado.mes = ultimo;  // abre no mês atual (ou em dezembro num ano fechado)
     else estado.mes = Math.min(estado.mes, ultimo);
     render(true);
   } catch (e) {
@@ -691,6 +696,5 @@ setTimeout(() => document.body.classList.remove("entrada"), 2600);  // a entrada
 const params = new URLSearchParams(location.search);
 const anoUrl = +params.get("ano"), mesUrl = params.has("mes") ? +params.get("mes") : null;
 const anoInicial = anoUrl >= 2000 && anoUrl <= new Date().getFullYear() ? anoUrl : new Date().getFullYear();
-// janeiro do ano corrente ainda não tem mês fechado: abre em dezembro do ano anterior
-const abrirAnterior = mesUrl == null && !anoUrl && new Date().getMonth() === 0;
-carregarAno(abrirAnterior ? anoInicial - 1 : anoInicial, { mes: mesUrl != null && mesUrl >= 0 && mesUrl <= 12 ? mesUrl : null });
+// sem período no endereço: abre no mês atual
+carregarAno(anoInicial, { mes: mesUrl != null && mesUrl >= 0 && mesUrl <= 12 ? mesUrl : null });

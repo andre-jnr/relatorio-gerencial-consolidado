@@ -33,6 +33,11 @@ Para remover: `servidor\desinstalar.bat` (não apaga dados).
 Os números vêm do **próprio código do painel por loja** (pasta `PAINEL_LOJAS_DIR` no `.env`; padrão: a pasta irmã `Relatório gerencial HTML`), com as regras, as planilhas e o `.env` de lá, inclusive as regras da Flores. Por isso o painel por loja precisa estar na mesma máquina.
 As linhas não são somadas: no resumo as transferências contam como faturamento de quem manda e pagamento de quem recebe. O número do grupo é o do Consolidado.
 
+**Pagamentos externos (`/externos`):** os pagamentos externos lançamento por lançamento, de todas as unidades, com as colunas da página Pagamentos do painel por loja (código, fornecedor, conta, emissão, pagamento, vencimento, valor pago, observação e origem), mais a unidade e o card. Os cards no topo filtram a lista; há busca e ordenação por coluna.
+Clicar num card de externos do Consolidado abre esta página já filtrada, no mesmo período. A lista usa a mesma função que decide os totais, então soma exatamente o valor de cada card.
+
+Todas as páginas abrem no **mês atual**.
+
 **Consolidado (`/consolidado`):**
 
 | Bloco | Conteúdo |
@@ -43,7 +48,7 @@ As linhas não são somadas: no resumo as transferências contam como faturament
 | 04 Unidades | cada loja: vendas, participação, pagamentos, resultado e lucratividade |
 | 05 Resultado por grupo | valor e % das vendas por unidade; clique num grupo para abrir as contas |
 
-- O painel abre no último mês fechado. Escolha qualquer mês ou o ano inteiro. Trocar de mês não consulta o banco de novo: o ano inteiro vem numa consulta só.
+- O painel abre no mês atual. Escolha qualquer mês ou o ano inteiro. Trocar de mês não consulta o banco de novo: o ano inteiro vem numa consulta só.
 - As comparações são com o mês anterior (janeiro: dezembro do ano anterior) ou com o ano anterior. Um período em andamento aparece como **Parcial**, sem comparação, para não comparar dias com um mês inteiro.
 - Os avisos no topo mostram: unidade que não respondeu (fica fora dos totais), mês sem vendas na planilha do CD e contas fora da planilha de classificação (NÃO CLASSIFICADOS).
 - **Excel** baixa a tabela por grupo, com as contas. **PDF** abre a impressão em A4 paisagem; escolha "Salvar como PDF".
@@ -55,10 +60,10 @@ As linhas não são somadas: no resumo as transferências contam como faturament
 |---|---|
 | Vendas | `SUM(Venda.Valor_Final)`, `Cancelada = 'N'`. CD: planilha, só `TIPO = VENDA` |
 | Pagamentos | `SUM(Valor_Pago × fator)` por `Data_Pagamento`, sem `Conta_Corrente = 2` (transferências internas) |
-| Parque Dez | sem as 4 contas LOJA FLORES e sem os pagamentos com "FLORES -" ou OSSAMI/OSAMI (nome antigo da Flores) na observação, mais os lançamentos 145552 e 146016: vão para a Flores, na conta em que foram lançados |
+| Parque Dez | sem as 5 contas LOJA FLORES (inclusive LOJA FLORES - 13º SALÁRIO) e sem os pagamentos com "FLORES -" ou OSSAMI/OSAMI (nome antigo da Flores) na observação, mais os lançamentos 145552 e 146016: vão para a Flores, na conta em que foram lançados |
 | Flores | vendas do banco da Flores. Pagamentos: só as 4 contas LOJA FLORES do banco da Parque Dez + recibos da planilha (menos Caixa / Ajustes). As contas a pagar do banco da Flores nunca entram |
 | CD | energia a 60%; lançamento 1987 (FALCAO) fora e não mostrado |
-| FALCAO INDUSTRIA NF | fora e não mostrada |
+| FALCAO INDUSTRIA NF e RECEITAS NÃO OPERACIONAIS | fora e não mostradas (a segunda é lançamento contábil, ex.: aplicação de CDB de R$ 750 mil em 13/11/2026) |
 | Compra de imóvel | lançamentos Ponta Negra 90097, 91105, 91106 e 91113 e Parque Dez 146333, mais as contas PAGAMENTO DE HAVERES e ITBI: saem da operação e entram como externo no card INVESTIMENTO/ COMPRA DE IMÓVEL. Vêm antes das despesas dos sócios (91105 e 91106 foram pagos à JC, mas são terreno) |
 | Despesas dos sócios e da família | Parque Dez: fornecedores SUL AMERICA (plano de saúde) e JC PARTICIPAÇÕES, conta INSS - SOCIOS e observações que citam Dona Silvia, Sr. Jarbas ou Sr. Eduardo (menos autorizações, retiradas e compras para a loja). Ponta Negra (JC = 3448) e CD (JC = 3252): só o fornecedor JC e a conta. Entram como externo no card JC GARCIA + Sócios; o que já é conta externa fica no card dela |
 | Externos | as contas de `contas_externas`. O card **JC GARCIA + Sócios** junta DESPESA JC GARCIA, DISTRIBUIÇÃO DE SÓCIOS, HAVERES/ FRIGORIFICO PARA JC PART e as despesas dos sócios e da família (inclusive tudo pago à JC) |

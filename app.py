@@ -17,7 +17,7 @@ import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from urllib.parse import quote
 
 from flask import Flask, Response, abort, redirect, request, send_from_directory, session
@@ -297,6 +297,58 @@ def api_resumo():
     return _json({"hoje": hoje.isoformat(), "atualizado_em": consolidado.agora_iso(), "unidades": resposta})
 
 
+def _externos_unidade(u, ano, mes, ini, fim, atualizar):
+    """Lançamentos externos de uma unidade no período (cache por unidade, ano e mês)."""
+    chave = ("externos", u["slug"], ano, mes)
+    with _trava(chave):
+        item = _cache.get(chave)
+        if (not atualizar and item and time.time() - item["quando"] < CACHE_MINUTOS * 60
+                and item["dia"] == date.today()):
+            return item["dados"]
+        try:
+            dados = {"slug": u["slug"], "nome": u["nome"], "ok": True, "linhas": consolidado.lancamentos_externos(u, ini, fim)}
+        except ErroBanco as e:
+            log.warning("Externos de %s: %s", u["nome"], e)
+            return {"slug": u["slug"], "nome": u["nome"], "ok": False, "erro": str(e), "linhas": []}
+        except Exception:  # noqa: BLE001
+            log.exception("Erro inesperado nos externos de %s", u["nome"])
+            return {"slug": u["slug"], "nome": u["nome"], "ok": False, "erro": "erro inesperado (veja o log)", "linhas": []}
+        _cache[chave] = {"dados": dados, "quando": time.time(), "dia": date.today()}
+        return dados
+
+
+@app.get("/api/externos")
+def api_externos():
+    """Pagamentos externos lançamento por lançamento, de todas as unidades, no mês (mes=0: o ano todo)."""
+    hoje = date.today()
+    try:
+        ano, mes = int(request.args.get("ano", hoje.year)), int(request.args.get("mes", hoje.month))
+    except ValueError:
+        ano = mes = -1
+    if not (ANO_INICIAL <= ano <= hoje.year and 0 <= mes <= 12) or (ano == hoje.year and mes > hoje.month):
+        return _erro("Informe um ano e mês válidos (até o mês atual).", 400)
+    ini, fim, ultimo_mes = consolidado.periodo(ano)
+    if mes:
+        ini = datetime(ano, mes, 1)
+        fim = min(datetime(ano + (mes == 12), mes % 12 + 1, 1), datetime.combine(hoje + timedelta(days=1), datetime.min.time()))
+    try:
+        if planilhas.atualizar():
+            _cache.clear()
+    except ErroPlanilha as e:
+        return _erro(f"Falha ao ler a planilha: {e}.", 502)
+    atualizar = request.args.get("atualizar") == "1"
+    futuros = [_unidades_pool.submit(_externos_unidade, u, ano, mes, ini, fim, atualizar) for u in UNIDADES]
+    unidades = [f.result() for f in futuros]
+    return _json({
+        "ano": ano, "mes": mes, "hoje": hoje.isoformat(), "ultimo_mes": ultimo_mes, "anos": list(range(hoje.year, ANO_INICIAL - 1, -1)),
+        "periodo": {"ini": ini.date().isoformat(), "fim": (fim - timedelta(days=1)).date().isoformat()},
+        "cards": consolidado.cards_externos(), "atualizado_em": consolidado.agora_iso(),
+        "unidades": [{k: u[k] for k in ("slug", "nome", "ok") if k in u} | ({"erro": u["erro"]} if not u["ok"] else {})
+                     for u in unidades],
+        "linhas": [l for u in unidades for l in u["linhas"]],
+    })
+
+
 @app.get("/api/consolidado")
 def api_consolidado():
     hoje = date.today()
@@ -391,6 +443,12 @@ def inicio():
 @app.get("/consolidado")
 def pagina_consolidado():
     return send_from_directory(WEB, "index.html")
+
+
+@app.get("/externos")
+def pagina_externos():
+    """Pagamentos externos lançamento por lançamento."""
+    return send_from_directory(WEB, "externos.html")
 
 
 @app.get("/usuarios")
